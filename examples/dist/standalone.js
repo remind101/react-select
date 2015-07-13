@@ -736,7 +736,7 @@ var Select = React.createClass({
 			value.push(React.createElement(
 				'div',
 				{ className: 'Select-placeholder', key: 'placeholder' },
-				this.state.placeholder
+				this.state.placeholder || this.state.value
 			));
 		}
 
