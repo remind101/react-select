@@ -711,7 +711,7 @@ var Select = React.createClass({
 		if (this.props.disabled ||
         (!this.state.inputValue && (!this.props.multi || !value.length)) ||
         this.props.alwaysShowPlaceholder) {
-			value.push(<div className="Select-placeholder" key="placeholder">{this.state.placeholder}</div>);
+			value.push(<div className="Select-placeholder" key="placeholder">{this.state.placeholder || this.state.value}</div>);
 		}
 
 		var loading = this.state.isLoading ? <span className="Select-loading" aria-hidden="true" /> : null;
