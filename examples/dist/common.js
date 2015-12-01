@@ -18851,6 +18851,12 @@ var React = require('react');
 
 var sizerStyle = { position: 'absolute', visibility: 'hidden', height: 0, width: 0, overflow: 'scroll', whiteSpace: 'nowrap' };
 
+var nextFrame = typeof window !== 'undefined' ? (function () {
+	return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || function (callback) {
+		window.setTimeout(callback, 1000 / 60);
+	};
+})() : undefined; // If window is undefined, then we can't define a nextFrame function
+
 var AutosizeInput = React.createClass({
 	displayName: 'AutosizeInput',
 
@@ -18880,31 +18886,40 @@ var AutosizeInput = React.createClass({
 		this.updateInputWidth();
 	},
 	componentDidUpdate: function componentDidUpdate() {
-		this.updateInputWidth();
+		this.queueUpdateInputWidth();
 	},
 	copyInputStyles: function copyInputStyles() {
 		if (!this.isMounted() || !window.getComputedStyle) {
 			return;
 		}
-		var inputStyle = window.getComputedStyle(this.refs.input.getDOMNode());
-		var widthNode = this.refs.sizer.getDOMNode();
+		var inputStyle = window.getComputedStyle(this.refs.input);
+		var widthNode = this.refs.sizer;
 		widthNode.style.fontSize = inputStyle.fontSize;
 		widthNode.style.fontFamily = inputStyle.fontFamily;
+		widthNode.style.fontWeight = inputStyle.fontWeight;
+		widthNode.style.fontStyle = inputStyle.fontStyle;
+		widthNode.style.letterSpacing = inputStyle.letterSpacing;
 		if (this.props.placeholder) {
-			var placeholderNode = this.refs.placeholderSizer.getDOMNode();
+			var placeholderNode = this.refs.placeholderSizer;
 			placeholderNode.style.fontSize = inputStyle.fontSize;
 			placeholderNode.style.fontFamily = inputStyle.fontFamily;
+			placeholderNode.style.fontWeight = inputStyle.fontWeight;
+			placeholderNode.style.fontStyle = inputStyle.fontStyle;
+			placeholderNode.style.letterSpacing = inputStyle.letterSpacing;
 		}
 	},
+	queueUpdateInputWidth: function queueUpdateInputWidth() {
+		nextFrame(this.updateInputWidth);
+	},
 	updateInputWidth: function updateInputWidth() {
-		if (!this.isMounted() || typeof this.refs.sizer.getDOMNode().scrollWidth === 'undefined') {
+		if (!this.isMounted() || typeof this.refs.sizer.scrollWidth === 'undefined') {
 			return;
 		}
-		var newInputWidth;
+		var newInputWidth = undefined;
 		if (this.props.placeholder) {
-			newInputWidth = Math.max(this.refs.sizer.getDOMNode().scrollWidth, this.refs.placeholderSizer.getDOMNode().scrollWidth) + 2;
+			newInputWidth = Math.max(this.refs.sizer.scrollWidth, this.refs.placeholderSizer.scrollWidth) + 2;
 		} else {
-			newInputWidth = this.refs.sizer.getDOMNode().scrollWidth + 2;
+			newInputWidth = this.refs.sizer.scrollWidth + 2;
 		}
 		if (newInputWidth < this.props.minWidth) {
 			newInputWidth = this.props.minWidth;
@@ -18919,17 +18934,18 @@ var AutosizeInput = React.createClass({
 		return this.refs.input;
 	},
 	focus: function focus() {
-		this.refs.input.getDOMNode().focus();
+		this.refs.input.focus();
 	},
 	select: function select() {
-		this.refs.input.getDOMNode().select();
+		this.refs.input.select();
 	},
 	render: function render() {
 		var escapedValue = (this.props.value || '').replace(/\&/g, '&amp;').replace(/ /g, '&nbsp;').replace(/\</g, '&lt;').replace(/\>/g, '&gt;');
 		var wrapperStyle = this.props.style || {};
-		wrapperStyle.display = 'inline-block';
-		var inputStyle = this.props.inputStyle || {};
+		if (!wrapperStyle.display) wrapperStyle.display = 'inline-block';
+		var inputStyle = _extends({}, this.props.inputStyle);
 		inputStyle.width = this.state.inputWidth;
+		inputStyle.boxSizing = 'content-box';
 		var placeholder = this.props.placeholder ? React.createElement(
 			'div',
 			{ ref: 'placeholderSizer', style: sizerStyle },
