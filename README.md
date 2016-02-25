@@ -1,3 +1,8 @@
+# DEPRECATED
+
+This is a deprecated version of our forked react-select, to maintain all old instances & allow us to create a new component from the latest react-select.
+
+
 React-Select
 ============
 
@@ -37,7 +42,7 @@ The easiest way to use React-Select is to install it from NPM and include it in 
 npm install react-select --save
 ```
 
-You can also use the standalone build by including `dist/select.js` and `dist/default.css` in your page. If you use this, make sure you have already included the following dependencies: 
+You can also use the standalone build by including `dist/select.js` and `dist/default.css` in your page. If you use this, make sure you have already included the following dependencies:
 
 * [React](http://facebook.github.io/react/)
 * [classNames](http://jedwatson.github.io/classnames/)
